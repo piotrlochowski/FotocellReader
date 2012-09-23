@@ -271,7 +271,8 @@ class TerminalFrame(wx.Frame):
         # begin wxGlade: TerminalFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        #self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.text_ctrl_output = wx.TextCtrl(self, size=(800,200), style=wx.TE_MULTILINE|wx.TE_READONLY)
         
         # Menu Bar
         self.frame_terminal_menubar = wx.MenuBar()
@@ -289,6 +290,9 @@ class TerminalFrame(wx.Frame):
 
         self.__set_properties()
         self.__do_layout()
+        
+        self.text_ctrl_output.WriteText('text')
+        
         # end wxGlade
         self.__attach_events()          #register events
         self.OnPortSettings(None)       #call setup dialog on startup, opens port
@@ -318,7 +322,8 @@ class TerminalFrame(wx.Frame):
     def __do_layout(self):
         # begin wxGlade: TerminalFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(self.text_ctrl_output, 1, wx.EXPAND, 0)
+        #sizer_1.Add(self.text_ctrl_output, 1, wx.EXPAND, 0)
+        sizer_1.Add(self.text_ctrl_output, 1, wx.ALIGN_CENTER|wx.ALL, 5)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_1)
         self.Layout()
@@ -332,7 +337,7 @@ class TerminalFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnPortSettings, id = ID_SETTINGS)
         self.Bind(wx.EVT_MENU, self.OnTermSettings, id = ID_TERM)
         self.text_ctrl_output.Bind(wx.EVT_CHAR, self.OnKey)        
-        self.Bind(EVT_SERIALRX, self.OnSerialRead)
+        self.text_ctrl_output.Bind(EVT_SERIALRX, self.OnSerialRead)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
     def OnExit(self, event):
@@ -438,14 +443,25 @@ class TerminalFrame(wx.Frame):
         """Handle input from the serial port."""
         text = event.data
         print "onserialevent", text
-        self.text_ctrl_output.AppendText(u'text')
+        self.text_ctrl_output.WriteText(u'text')
 
     def ComPortThread(self):
         """Thread that handles the incomming traffic. Does the basic input
            transformation (newlines) and generates an SerialRxEvent"""
         while self.alive.isSet():               #loop while alive event is true
-            text = self.serial.read(1)          #read one, with timout
-            if text:                            #check if not timeout
+            text = self.translate(self.serial.read(1))          #read one, with timout
+            print "command ",text 
+            if text == 0:                            #check if not timeout
+                driver = self.translate(self.serial.read(1))
+                time = ""
+                #min
+                time += str(self.translate(self.serial.read(1)))
+                time += ":"
+                #sec
+                time += str(self.translate(self.serial.read(1)))
+                time += ":"
+                #ms
+                time += str(self.translate(self.serial.read(1)))
                 #n = self.serial.inWaiting()     #look if there is more to read
                 #if n:
                 #    text = text + self.serial.read(n) #get it
@@ -456,22 +472,23 @@ class TerminalFrame(wx.Frame):
                 #    pass
                 #elif self.settings.newline == NEWLINE_CRLF:
                 #    text = text.replace('\r\n', '\n')
-                text = self.translate(text)
-                event = SerialRxEvent(self.GetId(), text)
+                #text = self.translate(text)
+                event = SerialRxEvent(self.GetId(), time)
                 self.GetEventHandler().AddPendingEvent(event)
-                #~ self.OnSerialRead(text)         #output text in window
+                #self.OnSerialRead(event)         #output text in window
     
     def translate(self, x):
         print "mam", x
-        if x.count('\\x') > 0 :
-            replace(x, '\\X' '0x')
-            #    result.append(int(x, 16))
-            print "oddaje", x
-            return int(x, 16)
-        else :
-            #result.append(ord(x))
-            print "oddaje", ord(x)
-            return (ord(x))
+        if len(x)>0:
+            if x.count('\\x') > 0 :
+                replace(x, '\\X' '0x')
+                #    result.append(int(x, 16))
+                print "oddaje", x
+                return int(x, 16)
+            else :
+                #result.append(ord(x))
+                print "oddaje", ord(x)
+                return (ord(x))
 
 # end of class TerminalFrame
 
