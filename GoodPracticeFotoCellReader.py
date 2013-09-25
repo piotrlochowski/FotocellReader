@@ -23,6 +23,7 @@ class DemoPanel(wx.Panel):
         Sizer.Add(SerialTerminal, 1, wx.ALIGN_CENTER|wx.ALL, 5)
         
         self.SetSizerAndFit(Sizer)
+        SerialTerminal.WriteText('text')
 
     def DoNothing(self, event=None):
         """Do nothing."""
