@@ -13,14 +13,15 @@ write_err = sys.stderr.write
 
 
 class Time():
-	mm = 0
-	ss = 0
+    mm = 0
+    ss = 0
+
 
 class SerialReader():
-	ser = None
+    ser = None
 
-	def __init__ (self):
-		self.ser = serial.Serial('/dev/ttyS0', 2400)	
+    def __init__(self):
+        self.ser = serial.Serial('/dev/ttyS0', 2400)
 
 	def readLapResult():
 		return readInfo(4)
@@ -76,8 +77,8 @@ try:
 	sr = SerialReader()
 	rrs = RaceRecordSender()
 	while 1:
-		print sr.readBytes(1)
-	#rrs.sendLapTime(0)
+		#print sr.readBytes(1)
+	    rrs.sendLapTime(0)
 		#sr.postRequest
 except serial.serialutil.SerialException:
 	write_err ("Blad otwarcia portu\n")
