@@ -58,7 +58,7 @@ class SerialConfigDialog(wx.Dialog):
        settings. The default is SHOW_ALL which coresponds to 
        SHOW_BAUDRATE|SHOW_FORMAT|SHOW_FLOW|SHOW_TIMEOUT. All constants can be
        found in ths module (not the class)."""
-    
+
     def __init__(self, *args, **kwds):
         #grab the serial keyword and remove it from the dict
         self.serial = kwds['serial']
@@ -261,44 +261,44 @@ class SerialConfigDialog(wx.Dialog):
 
 class TerminalFrame(wx.Frame):
     """Simple terminal program for wxPython"""
-    
+
     def __init__(self, parent, title):
-        
+
         self.serial = serial.Serial()
         self.serial.timeout = 0.5   #make sure that the alive event can be checked from time to time
         self.settings = TerminalSetup() #placeholder for the settings
         self.thread = None
-        self.alive = threading.Event()               
-        
-        wx.Frame.__init__(self, parent, title=title, size=(800, 600))
+        self.alive = threading.Event()
+
+        wx.Frame.__init__(self, parent, title='Aktualne przejazdy', size=(800, 600))
         self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
-        
+
         #Status bar
         self.CreateStatusBar()
-        
+
         #Menu
         fileMenu = wx.Menu()
         configMenu = wx.Menu()
-        
+
         # wx.ID_ABOUT and wx.ID_EXIT are standard ids provided by wxWidgets.
         self.menuFileAbout = fileMenu.Append(wx.ID_ABOUT, "&O programie", "Written by GaZiK")
         self.menuFileExit = fileMenu.Append(wx.ID_EXIT,"&Wyjscie","Wylacz program")
         self.menuConfigPort = configMenu.Append(wx.ID_EDIT, "&Ustaw port", "Konfiguracja odczytu fotokomorki")
-        
+
         #self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
-        
+
         # Creating the menubar.
         menuBar = wx.MenuBar()
         menuBar.Append(fileMenu,"&Plik") # Adding the "filemenu" to the MenuBar
         menuBar.Append(configMenu, "&Konfiguracja")
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-    
-        
+
+
 
 
 ##############
-       
-        
+
+
         """# Menu Bar
         self.frame_terminal_menubar = wx.MenuBar()
         self.SetMenuBar(self.frame_terminal_menubar)
@@ -315,9 +315,9 @@ class TerminalFrame(wx.Frame):
 
         self.__set_properties()
         self.__do_layout()
-        
-        self.text_ctrl_output.WriteText('text')
-        
+
+        self.text_ctrl_output.WriteText('Wyniki:\n')
+
         # end wxGlade
         self.__attach_events()          #register events
         self.OnPortSettings(None)       #call setup dialog on startup, opens port
@@ -325,7 +325,7 @@ class TerminalFrame(wx.Frame):
             self.Close()
 
     def StartThread(self):
-        """Start the receiver thread"""        
+        """Start the receiver thread"""
         self.thread = threading.Thread(target=self.ComPortThread)
         self.thread.setDaemon(1)
         self.alive.set()
@@ -337,7 +337,7 @@ class TerminalFrame(wx.Frame):
             self.alive.clear()          #clear alive event for thread
             self.thread.join()          #wait until thread has finished
             self.thread = None
-        
+
     def __set_properties(self):
         # begin wxGlade: TerminalFrame.__set_properties
         self.SetTitle("Serial Terminal")
@@ -359,14 +359,14 @@ class TerminalFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onAbout, self.menuFileAbout)
         self.Bind(wx.EVT_MENU, self.onExit, self.menuFileExit)
         self.Bind(wx.EVT_MENU, self.onConfig, self.menuConfigPort)
-        
+
         #register events at the controls
         """self.Bind(wx.EVT_MENU, self.OnClear, id = ID_CLEAR)
         self.Bind(wx.EVT_MENU, self.OnSaveAs, id = ID_SAVEAS)
         self.Bind(wx.EVT_MENU, self.OnExit, id = ID_EXIT)
         self.Bind(wx.EVT_MENU, self.OnPortSettings, id = ID_SETTINGS)
         self.Bind(wx.EVT_MENU, self.OnTermSettings, id = ID_TERM)"""
-        self.text_ctrl_output.Bind(wx.EVT_CHAR, self.OnKey)        
+        self.text_ctrl_output.Bind(wx.EVT_CHAR, self.OnKey)
         self.Bind(EVT_SERIALRX, self.OnSerialRead)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
@@ -387,7 +387,7 @@ class TerminalFrame(wx.Frame):
         if dlg.ShowModal() ==  wx.ID_OK:
             filename = dlg.GetPath()
         dlg.Destroy()
-        
+
         if filename is not None:
             f = file(filename, 'w')
             text = self.text_ctrl_output.GetValue()
@@ -395,11 +395,11 @@ class TerminalFrame(wx.Frame):
                 text = text.encode("latin1")    #hm, is that a good asumption?
             f.write(text)
             f.close()
-    
+
     def OnClear(self, event):
         """Clear contents of output window."""
         self.text_ctrl_output.Clear()
-    
+
     def OnPortSettings(self, event=None):
         """Show the portsettings dialog. The reader thread is stopped for the
            settings change."""
@@ -446,7 +446,7 @@ class TerminalFrame(wx.Frame):
         dialog = TerminalSettingsDialog(None, -1, "", settings=self.settings)
         result = dialog.ShowModal()
         dialog.Destroy()
-        
+
     def OnKey(self, event):
         """Key event handler. if the key is in the ASCII range, write it to the serial port.
            Newline handling and local echo is also done here."""
@@ -480,7 +480,7 @@ class TerminalFrame(wx.Frame):
            transformation (newlines) and generates an SerialRxEvent"""
         while self.alive.isSet():               #loop while alive event is true
             text = self.translate(self.serial.read(1))          #read one, with timout
-            print "command ",text 
+            #print "command ",text
             if text == 0:                            #check if not timeout
                 driver = self.translate(self.serial.read(1))
                 time = ""
@@ -489,7 +489,7 @@ class TerminalFrame(wx.Frame):
                 time += ":"
                 #sec
                 time += str(self.translate(self.serial.read(1)))
-                time += ":"
+                time += "."
                 #ms
                 time += str(self.translate(self.serial.read(1)))
                 #n = self.serial.inWaiting()     #look if there is more to read
@@ -503,8 +503,8 @@ class TerminalFrame(wx.Frame):
                 #elif self.settings.newline == NEWLINE_CRLF:
                 #    text = text.replace('\r\n', '\n')
                 #text = self.translate(text)
-                print "driver", driver
-                event = SerialRxEvent(self.GetId(), time)
+                #print "driver", driver
+                event = SerialRxEvent(self.GetId(), str(driver) + ': ' + time + '\n')
                 self.GetEventHandler().AddPendingEvent(event)
                 #self.OnSerialRead(event)         #output text in window
     def onAbout(self, event):
@@ -512,7 +512,7 @@ class TerminalFrame(wx.Frame):
         dlg = wx.MessageDialog( self, "To czytnik fotokomorki", "O czytniku slow kilka", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy() # finally destroy it when finished.
-        
+
     def onConfig(self, event):
         #chgdep = ChangeDepthDialog(None, title="Wybierz port wejsciowy")
         #chgdep.ShowModal()
@@ -523,27 +523,27 @@ class TerminalFrame(wx.Frame):
             print ser
             if result != wx.ID_OK:
                 break
-           
+
     def translate(self, x):
-        print "mam", x
+        #print "mam", x
         if len(x)>0:
             if x.count('\\x') > 0 :
                 replace(x, '\\X' '0x')
                 #    result.append(int(x, 16))
-                print "oddaje", x
+                #print "oddaje", x
                 return int(x, 16)
             else :
                 #result.append(ord(x))
-                print "oddaje", ord(x)
+                #print "oddaje", ord(x)
                 return (ord(x))
 
 # end of class TerminalFrame
 
 
 class ChangeDepthDialog(wx.Dialog):
-    
+
     def __init__(self, parent, title):
-        super(ChangeDepthDialog, self).__init__(parent=parent, 
+        super(ChangeDepthDialog, self).__init__(parent=parent,
             title=title, size=(250, 200))
 
         panel = wx.Panel(self)
@@ -551,18 +551,18 @@ class ChangeDepthDialog(wx.Dialog):
 
         sb = wx.StaticBox(panel, label='Porty')
         sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
-        
+
         sbs.Add(wx.RadioButton(panel, label='256 Colors', style=wx.RB_GROUP))
         sbs.Add(wx.RadioButton(panel, label='16 Colors'))
         sbs.Add(wx.RadioButton(panel, label='2 Colors'))
-        
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)        
+
+        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         hbox1.Add(wx.RadioButton(panel, label='Custom'))
         hbox1.Add(wx.TextCtrl(panel), flag=wx.LEFT, border=5)
         sbs.Add(hbox1)
-        
+
         panel.SetSizer(sbs)
-       
+
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
         okButton = wx.Button(self, label='Ok')
         closeButton = wx.Button(self, label='Close')
@@ -573,41 +573,41 @@ class ChangeDepthDialog(wx.Dialog):
         vbox.Add(hbox2, flag= wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
 
         self.SetSizer(vbox)
-        
+
         okButton.Bind(wx.EVT_BUTTON, self.OnClose)
         closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
-        
+
     def OnClose(self, e):
-        
+
         self.Destroy()
 
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        
+
         ser = serial.Serial()
         print ser
-        
+
         wx.Frame.__init__(self, parent, title=title, size=(800, 600))
         #Status bar
         self.CreateStatusBar()
-        
+
         #Menu
         fileMenu = wx.Menu()
         configMenu = wx.Menu()
-        
+
         # wx.ID_ABOUT and wx.ID_EXIT are standard ids provided by wxWidgets.
         menuFileAbout = fileMenu.Append(wx.ID_ABOUT, "&O programie", "Written by GaZiK")
         menuFileExit = fileMenu.Append(wx.ID_EXIT,"&Wyjscie","Wylacz program")
         menuConfigPort = configMenu.Append(wx.ID_EDIT, "&Ustaw port", "Konfiguracja odczytu fotokomorki")
-        
+
         # Creating the menubar.
         menuBar = wx.MenuBar()
         menuBar.Append(fileMenu,"&Plik") # Adding the "filemenu" to the MenuBar
         menuBar.Append(configMenu, "&Konfiguracja")
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-    
-        
+
+
         #Set event
         self.Bind(wx.EVT_MENU, self.onAbout, menuFileAbout)
         self.Bind(wx.EVT_MENU, self.onExit, menuFileExit)
@@ -616,9 +616,9 @@ class MainWindow(wx.Frame):
         rame_terminal = TerminalFrame(None, -1, "")
         self.SetTopWindow(frame_terminal)
         frame_terminal.Show(1)
-        
-        self.Show(True)      
-    
+
+        self.Show(True)
+
     def onConfig(self, event):
         #chgdep = ChangeDepthDialog(None, title="Wybierz port wejsciowy")
         #chgdep.ShowModal()
@@ -629,22 +629,22 @@ class MainWindow(wx.Frame):
             print ser
             if result != wx.ID_OK:
                 break
-        
 
-        
+
+
     def onAbout(self, event):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
         dlg = wx.MessageDialog( self, "To czytnik fotokomorki", "O czytniku slow kilka", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy() # finally destroy it when finished.
-        
+
     def onExit(self, event):
         """Called on application shutdown."""
         self.StopThread()               #stop reader thread
         self.serial.close()             #cleanup
         self.Destroy()                  #close windows, exit app
-    
-    
+
+
 
 class MyApp(wx.App):
     def OnInit(self):

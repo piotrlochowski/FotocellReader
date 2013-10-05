@@ -77,8 +77,8 @@ try:
     sr = SerialReader()
     rrs = RaceRecordSender()
     while 1:
-        #print sr.readBytes(1)
-        rrs.sendLapTime(0)
+        print sr.readBytes(1)
+        #rrs.sendLapTime(0)
         #sr.postRequest
 except serial.serialutil.SerialException:
     write_err("Blad otwarcia portu\n")
