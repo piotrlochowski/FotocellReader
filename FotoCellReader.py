@@ -14,8 +14,10 @@ SERIALRX = wx.NewEventType()
 # bind to serial data receive events
 EVT_SERIALRX = wx.PyEventBinder(SERIALRX, 0)
 
+
 class SerialRxEvent(wx.PyCommandEvent):
     eventType = SERIALRX
+
     def __init__(self, windowID, data):
         wx.PyCommandEvent.__init__(self, self.eventType, windowID)
         self.data = data
@@ -25,30 +27,33 @@ class SerialRxEvent(wx.PyCommandEvent):
 
 #----------------------------------------------------------------------
 
-ID_CLEAR        = wx.NewId()
-ID_SAVEAS       = wx.NewId()
-ID_SETTINGS     = wx.NewId()
-ID_TERM         = wx.NewId()
-ID_EXIT         = wx.NewId()
+ID_CLEAR = wx.NewId()
+ID_SAVEAS = wx.NewId()
+ID_SETTINGS = wx.NewId()
+ID_TERM = wx.NewId()
+ID_EXIT = wx.NewId()
 
-NEWLINE_CR      = 0
-NEWLINE_LF      = 1
-NEWLINE_CRLF    = 2
+NEWLINE_CR = 0
+NEWLINE_LF = 1
+NEWLINE_CRLF = 2
+
 
 class TerminalSetup:
     """Placeholder for various terminal settings. Used to pass the
        options to the TerminalSettingsDialog."""
+
     def __init__(self):
         self.echo = False
         self.unprintable = False
         self.newline = NEWLINE_CRLF
 
 
-SHOW_BAUDRATE   = 1<<0
-SHOW_FORMAT     = 1<<1
-SHOW_FLOW       = 1<<2
-SHOW_TIMEOUT    = 1<<3
-SHOW_ALL = SHOW_BAUDRATE|SHOW_FORMAT|SHOW_FLOW|SHOW_TIMEOUT
+SHOW_BAUDRATE = 1 << 0
+SHOW_FORMAT = 1 << 1
+SHOW_FLOW = 1 << 2
+SHOW_TIMEOUT = 1 << 3
+SHOW_ALL = SHOW_BAUDRATE | SHOW_FORMAT | SHOW_FLOW | SHOW_TIMEOUT
+
 
 class SerialConfigDialog(wx.Dialog):
     """Serial Port confiuration dialog, to be used with pyserial 2.0+
@@ -67,12 +72,13 @@ class SerialConfigDialog(wx.Dialog):
         if kwds.has_key('show'):
             self.show = kwds['show']
             del kwds['show']
-        # begin wxGlade: SerialConfigDialog.__init__
+            # begin wxGlade: SerialConfigDialog.__init__
         # end wxGlade
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE
         wx.Dialog.__init__(self, *args, **kwds)
         self.label_2 = wx.StaticText(self, -1, "Port")
-        self.combo_box_port = wx.ComboBox(self, -1, choices=["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"], style=wx.CB_DROPDOWN)
+        self.combo_box_port = wx.ComboBox(self, -1, choices=["dummy1", "dummy2", "dummy3", "dummy4", "dummy5"],
+                                          style=wx.CB_DROPDOWN)
         if self.show & SHOW_BAUDRATE:
             self.label_1 = wx.StaticText(self, -1, "Baudrate")
             self.choice_baudrate = wx.Choice(self, -1, choices=["choice 1"])
@@ -151,7 +157,7 @@ class SerialConfigDialog(wx.Dialog):
             self.checkbox_rtscts.SetValue(self.serial.rtscts)
             #set the rtscts mode
             self.checkbox_xonxoff.SetValue(self.serial.xonxoff)
-        #attach the event handlers
+            #attach the event handlers
         self.__attach_events()
 
     def __set_properties(self):
@@ -169,12 +175,12 @@ class SerialConfigDialog(wx.Dialog):
         sizer_3 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_basics = wx.StaticBoxSizer(wx.StaticBox(self, -1, "Basics"), wx.VERTICAL)
         sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_5.Add(self.label_2, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+        sizer_5.Add(self.label_2, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
         sizer_5.Add(self.combo_box_port, 1, 0, 0)
-        sizer_basics.Add(sizer_5, 0, wx.RIGHT|wx.EXPAND, 0)
+        sizer_basics.Add(sizer_5, 0, wx.RIGHT | wx.EXPAND, 0)
         if self.show & SHOW_BAUDRATE:
             sizer_baudrate = wx.BoxSizer(wx.HORIZONTAL)
-            sizer_baudrate.Add(self.label_1, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_baudrate.Add(self.label_1, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_baudrate.Add(self.choice_baudrate, 1, wx.ALIGN_RIGHT, 0)
             sizer_basics.Add(sizer_baudrate, 0, wx.EXPAND, 0)
         sizer_2.Add(sizer_basics, 0, wx.EXPAND, 0)
@@ -183,31 +189,31 @@ class SerialConfigDialog(wx.Dialog):
             sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
             sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
             sizer_format = wx.StaticBoxSizer(wx.StaticBox(self, -1, "Data Format"), wx.VERTICAL)
-            sizer_6.Add(self.label_3, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_6.Add(self.label_3, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_6.Add(self.choice_databits, 1, wx.ALIGN_RIGHT, 0)
             sizer_format.Add(sizer_6, 0, wx.EXPAND, 0)
-            sizer_7.Add(self.label_4, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_7.Add(self.label_4, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_7.Add(self.choice_stopbits, 1, wx.ALIGN_RIGHT, 0)
             sizer_format.Add(sizer_7, 0, wx.EXPAND, 0)
-            sizer_8.Add(self.label_5, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_8.Add(self.label_5, 1, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_8.Add(self.choice_parity, 1, wx.ALIGN_RIGHT, 0)
             sizer_format.Add(sizer_8, 0, wx.EXPAND, 0)
             sizer_2.Add(sizer_format, 0, wx.EXPAND, 0)
         if self.show & SHOW_TIMEOUT:
             sizer_timeout = wx.StaticBoxSizer(wx.StaticBox(self, -1, "Timeout"), wx.HORIZONTAL)
-            sizer_timeout.Add(self.checkbox_timeout, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_timeout.Add(self.checkbox_timeout, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_timeout.Add(self.text_ctrl_timeout, 0, 0, 0)
-            sizer_timeout.Add(self.label_6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_timeout.Add(self.label_6, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
             sizer_2.Add(sizer_timeout, 0, 0, 0)
         if self.show & SHOW_FLOW:
             sizer_flow = wx.StaticBoxSizer(wx.StaticBox(self, -1, "Flow Control"), wx.HORIZONTAL)
-            sizer_flow.Add(self.checkbox_rtscts, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
-            sizer_flow.Add(self.checkbox_xonxoff, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 4)
-            sizer_flow.Add((10,10), 1, wx.EXPAND, 0)
+            sizer_flow.Add(self.checkbox_rtscts, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_flow.Add(self.checkbox_xonxoff, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 4)
+            sizer_flow.Add((10, 10), 1, wx.EXPAND, 0)
             sizer_2.Add(sizer_flow, 0, wx.EXPAND, 0)
         sizer_3.Add(self.button_ok, 0, 0, 0)
         sizer_3.Add(self.button_cancel, 0, 0, 0)
-        sizer_2.Add(sizer_3, 0, wx.ALL|wx.ALIGN_RIGHT, 4)
+        sizer_2.Add(sizer_3, 0, wx.ALL | wx.ALIGN_RIGHT, 4)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_2)
         sizer_2.Fit(self)
@@ -222,23 +228,23 @@ class SerialConfigDialog(wx.Dialog):
 
     def OnOK(self, events):
         success = True
-        self.serial.port     = str(self.combo_box_port.GetValue())
+        self.serial.port = str(self.combo_box_port.GetValue())
         if self.show & SHOW_BAUDRATE:
             self.serial.baudrate = self.serial.BAUDRATES[self.choice_baudrate.GetSelection()]
         if self.show & SHOW_FORMAT:
             self.serial.bytesize = self.serial.BYTESIZES[self.choice_databits.GetSelection()]
             self.serial.stopbits = self.serial.STOPBITS[self.choice_stopbits.GetSelection()]
-            self.serial.parity   = self.serial.PARITIES[self.choice_parity.GetSelection()]
+            self.serial.parity = self.serial.PARITIES[self.choice_parity.GetSelection()]
         if self.show & SHOW_FLOW:
-            self.serial.rtscts   = self.checkbox_rtscts.GetValue()
-            self.serial.xonxoff  = self.checkbox_xonxoff.GetValue()
+            self.serial.rtscts = self.checkbox_rtscts.GetValue()
+            self.serial.xonxoff = self.checkbox_xonxoff.GetValue()
         if self.show & SHOW_TIMEOUT:
             if self.checkbox_timeout.GetValue():
                 try:
                     self.serial.timeout = float(self.text_ctrl_timeout.GetValue())
                 except ValueError:
                     dlg = wx.MessageDialog(self, 'Timeout must be a numeric value',
-                                                'Value Error', wx.OK | wx.ICON_ERROR)
+                                           'Value Error', wx.OK | wx.ICON_ERROR)
                     dlg.ShowModal()
                     dlg.Destroy()
                     success = False
@@ -270,33 +276,28 @@ class TerminalFrame(wx.Frame):
         self.thread = None
         self.alive = threading.Event()
 
-        wx.Frame.__init__(self, parent, title='Aktualne przejazdy', size=(800, 600))
-        self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        wx.Frame.__init__(self, parent, title='Aktualne przejazdy', size=(1024, 786))
 
         #Status bar
         self.CreateStatusBar()
 
         #Menu
         fileMenu = wx.Menu()
-        configMenu = wx.Menu()
 
         # wx.ID_ABOUT and wx.ID_EXIT are standard ids provided by wxWidgets.
         self.menuFileAbout = fileMenu.Append(wx.ID_ABOUT, "&O programie", "Written by GaZiK")
-        self.menuFileExit = fileMenu.Append(wx.ID_EXIT,"&Wyjscie","Wylacz program")
-        self.menuConfigPort = configMenu.Append(wx.ID_EDIT, "&Ustaw port", "Konfiguracja odczytu fotokomorki")
-
-        #self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.menuFileExit = fileMenu.Append(wx.ID_EXIT, "&Wyjscie", "Wylacz program")
 
         # Creating the menubar.
         menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu,"&Plik") # Adding the "filemenu" to the MenuBar
-        menuBar.Append(configMenu, "&Konfiguracja")
+        menuBar.Append(fileMenu, "&Plik") # Adding the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
 
+        self.text_ctrl_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
 
 
 
-##############
+        ##############
 
 
         """# Menu Bar
@@ -340,25 +341,24 @@ class TerminalFrame(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: TerminalFrame.__set_properties
-        self.SetTitle("Serial Terminal")
-        self.SetSize((546, 383))
+        self.SetTitle("Czytnik przejazdow")
+        self.SetSize((800, 600))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: TerminalFrame.__do_layout
-        sizer_1 = wx.BoxSizer(wx.VERTICAL)
-        #sizer_1.Add(self.text_ctrl_output, 1, wx.EXPAND, 0)
-        sizer_1.Add(self.text_ctrl_output, 1, wx.ALIGN_CENTER|wx.ALL, 5)
+        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_1.Add(self.text_ctrl_output, 1, wx.EXPAND, 0)
+        #sizer_1.Add(self.text_ctrl_output, 1, wx.ALIGN_CENTER | wx.ALL, 5)
         self.SetAutoLayout(1)
         self.SetSizer(sizer_1)
         self.Layout()
         # end wxGlade
 
     def __attach_events(self):
-                #Set event
+    #Set event
         self.Bind(wx.EVT_MENU, self.onAbout, self.menuFileAbout)
         self.Bind(wx.EVT_MENU, self.onExit, self.menuFileExit)
-        self.Bind(wx.EVT_MENU, self.onConfig, self.menuConfigPort)
 
         #register events at the controls
         """self.Bind(wx.EVT_MENU, self.OnClear, id = ID_CLEAR)
@@ -383,8 +383,8 @@ class TerminalFrame(wx.Frame):
     def OnSaveAs(self, event):
         """Save contents of output window."""
         filename = None
-        dlg = wx.FileDialog(None, "Save Text As...", ".", "", "Text File|*.txt|All Files|*",  wx.SAVE)
-        if dlg.ShowModal() ==  wx.ID_OK:
+        dlg = wx.FileDialog(None, "Save Text As...", ".", "", "Text File|*.txt|All Files|*", wx.SAVE)
+        if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetPath()
         dlg.Destroy()
 
@@ -409,8 +409,8 @@ class TerminalFrame(wx.Frame):
         ok = False
         while not ok:
             dialog_serial_cfg = SerialConfigDialog(None, -1, "",
-                show=SHOW_BAUDRATE|SHOW_FORMAT|SHOW_FLOW,
-                serial=self.serial
+                                                   show=SHOW_BAUDRATE | SHOW_FORMAT | SHOW_FLOW,
+                                                   serial=self.serial
             )
             result = dialog_serial_cfg.ShowModal()
             dialog_serial_cfg.Destroy()
@@ -432,7 +432,7 @@ class TerminalFrame(wx.Frame):
                         self.serial.stopbits,
                         self.serial.rtscts and ' RTS/CTS' or '',
                         self.serial.xonxoff and ' Xon/Xoff' or '',
-                        )
+                    )
                     )
                     ok = True
             else:
@@ -467,12 +467,14 @@ class TerminalFrame(wx.Frame):
                     self.text_ctrl_output.WriteText(char)
                 self.serial.write(char)         #send the charcater
         else:
-            print "Extra Key:", code
+            print
+            "Extra Key:", code
 
     def OnSerialRead(self, event):
         """Handle input from the serial port."""
         text = event.data
-        print "onserialevent", text
+        print
+        "onserialevent", text
         self.text_ctrl_output.WriteText(text)
 
     def ComPortThread(self):
@@ -507,144 +509,27 @@ class TerminalFrame(wx.Frame):
                 event = SerialRxEvent(self.GetId(), str(driver) + ': ' + time + '\n')
                 self.GetEventHandler().AddPendingEvent(event)
                 #self.OnSerialRead(event)         #output text in window
+
     def onAbout(self, event):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
-        dlg = wx.MessageDialog( self, "To czytnik fotokomorki", "O czytniku slow kilka", wx.OK)
+        dlg = wx.MessageDialog(self, "To czytnik fotokomorki", "O czytniku slow kilka", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy() # finally destroy it when finished.
 
-    def onConfig(self, event):
-        #chgdep = ChangeDepthDialog(None, title="Wybierz port wejsciowy")
-        #chgdep.ShowModal()
-        #chgdep.Destroy()
-        for flags in (SHOW_BAUDRATE, SHOW_FLOW, SHOW_FORMAT, SHOW_TIMEOUT, SHOW_ALL):
-            dialog_serial_cfg = SerialConfigDialog(None, -1, "", serial=ser, show=flags)
-            result = dialog_serial_cfg.ShowModal()
-            print ser
-            if result != wx.ID_OK:
-                break
-
     def translate(self, x):
         #print "mam", x
-        if len(x)>0:
-            if x.count('\\x') > 0 :
+        if len(x) > 0:
+            if x.count('\\x') > 0:
                 replace(x, '\\X' '0x')
                 #    result.append(int(x, 16))
                 #print "oddaje", x
                 return int(x, 16)
-            else :
+            else:
                 #result.append(ord(x))
                 #print "oddaje", ord(x)
                 return (ord(x))
 
 # end of class TerminalFrame
-
-
-class ChangeDepthDialog(wx.Dialog):
-
-    def __init__(self, parent, title):
-        super(ChangeDepthDialog, self).__init__(parent=parent,
-            title=title, size=(250, 200))
-
-        panel = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
-
-        sb = wx.StaticBox(panel, label='Porty')
-        sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
-
-        sbs.Add(wx.RadioButton(panel, label='256 Colors', style=wx.RB_GROUP))
-        sbs.Add(wx.RadioButton(panel, label='16 Colors'))
-        sbs.Add(wx.RadioButton(panel, label='2 Colors'))
-
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        hbox1.Add(wx.RadioButton(panel, label='Custom'))
-        hbox1.Add(wx.TextCtrl(panel), flag=wx.LEFT, border=5)
-        sbs.Add(hbox1)
-
-        panel.SetSizer(sbs)
-
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        okButton = wx.Button(self, label='Ok')
-        closeButton = wx.Button(self, label='Close')
-        hbox2.Add(okButton)
-        hbox2.Add(closeButton, flag=wx.LEFT, border=5)
-
-        vbox.Add(panel, proportion=1, flag=wx.ALL|wx.EXPAND, border=5)
-        vbox.Add(hbox2, flag= wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
-
-        self.SetSizer(vbox)
-
-        okButton.Bind(wx.EVT_BUTTON, self.OnClose)
-        closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
-
-    def OnClose(self, e):
-
-        self.Destroy()
-
-
-class MainWindow(wx.Frame):
-    def __init__(self, parent, title):
-
-        ser = serial.Serial()
-        print ser
-
-        wx.Frame.__init__(self, parent, title=title, size=(800, 600))
-        #Status bar
-        self.CreateStatusBar()
-
-        #Menu
-        fileMenu = wx.Menu()
-        configMenu = wx.Menu()
-
-        # wx.ID_ABOUT and wx.ID_EXIT are standard ids provided by wxWidgets.
-        menuFileAbout = fileMenu.Append(wx.ID_ABOUT, "&O programie", "Written by GaZiK")
-        menuFileExit = fileMenu.Append(wx.ID_EXIT,"&Wyjscie","Wylacz program")
-        menuConfigPort = configMenu.Append(wx.ID_EDIT, "&Ustaw port", "Konfiguracja odczytu fotokomorki")
-
-        # Creating the menubar.
-        menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu,"&Plik") # Adding the "filemenu" to the MenuBar
-        menuBar.Append(configMenu, "&Konfiguracja")
-        self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-
-
-        #Set event
-        self.Bind(wx.EVT_MENU, self.onAbout, menuFileAbout)
-        self.Bind(wx.EVT_MENU, self.onExit, menuFileExit)
-        self.Bind(wx.EVT_MENU, self.onConfig, menuConfigPort)
-
-        rame_terminal = TerminalFrame(None, -1, "")
-        self.SetTopWindow(frame_terminal)
-        frame_terminal.Show(1)
-
-        self.Show(True)
-
-    def onConfig(self, event):
-        #chgdep = ChangeDepthDialog(None, title="Wybierz port wejsciowy")
-        #chgdep.ShowModal()
-        #chgdep.Destroy()
-        for flags in (SHOW_BAUDRATE, SHOW_FLOW, SHOW_FORMAT, SHOW_TIMEOUT, SHOW_ALL):
-            dialog_serial_cfg = SerialConfigDialog(None, -1, "", serial=ser, show=flags)
-            result = dialog_serial_cfg.ShowModal()
-            print ser
-            if result != wx.ID_OK:
-                break
-
-
-
-    def onAbout(self, event):
-        # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
-        dlg = wx.MessageDialog( self, "To czytnik fotokomorki", "O czytniku slow kilka", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
-
-    def onExit(self, event):
-        """Called on application shutdown."""
-        self.StopThread()               #stop reader thread
-        self.serial.close()             #cleanup
-        self.Destroy()                  #close windows, exit app
-
-
 
 class MyApp(wx.App):
     def OnInit(self):
