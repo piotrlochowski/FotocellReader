@@ -1,12 +1,10 @@
 #!/usr/bin/env python
+import base64
 import serial
 import binascii
 import sys
 import urllib2
 import json
-
-#reload(sys)
-#sys.setdefaultencoding('utf-8')
 
 write = sys.stdout.write
 write_err = sys.stderr.write
@@ -47,28 +45,29 @@ class SerialReader():
 
 class RaceRecordSender():
     def sendLapTime(self, time):
-        data = '{"lap_nr": 1, "penalty": "11:08:26", "penalty_value": "22", "time": "11:08:25", "trial_result": "/py/api/v1/trial_result/1/"}'
-        #data_json = json.dumps(data)
-        host = "http://localhost/py/api/v1/lap/?format=json"
-        req = urllib2.Request(host, data, {'content-type': 'application/json'})
+        url = "http://localhost:8000/py/api/v1/lap/?format=json"
+        data = {"lap_nr": 1, "penalty": "11:08:26", "penalty_value": "22", "time": time, "trial_result": "/py/api/v1/trial_result/1/"}
+
+        auth = 'Basic %s' % base64.encodestring('%s:%s' % ('piziem', 'pass4pizi'))[:-1]
+
+        req = urllib2.Request(url, json.dumps(data), {'content-type': 'application/json', 'Authorization': auth})
         response_stream = urllib2.urlopen(req)
         response = response_stream.read()
-        print(response)
 
-    def postRequest():
-        url = "http://localhost/py/api/v1/lap/?format=json"
-        json_data = '{"lap_nr": 1, "penalty": "11:08:26", "penalty_value": "22", "resource_uri": "/api/v1/lap/2/", "time": "11:08:25", "trial_result": "/api/v1/trial_result/1/"}'
+    def postRequest(self, time):
+        url = "http://localhost:8000/py/api/v1/lap/?format=json"
+        data = {"lap_nr": 1, "penalty": "11:08:26", "penalty_value": "22", "time": time, "trial_result": "/py/api/v1/trial_result/1/"}
 
         opener = urllib2.build_opener()
+        auth = 'Basic %s' % base64.encodestring('%s:%s' % ('piziem', 'pass4pizi'))[:-1]
         opener.addheaders = [('Accept', 'application/json'),
                              ('Content-Type', 'application/json'),
-                             #('Authorization', 'Basic %s' % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]),
+                             #('Authorization', auth),
                              ('User-Agent', 'Python-urllib/2.6')]
 
-        req = urllib2.Request(url=url, data=json_data)
-        #assert req.get_method() == 'POST'
-        response = self.opener.open(req)
-        print response.code
+        req = urllib2.Request(url=url, data=json.dumps(data))
+        assert req.get_method() == 'POST'
+        response = opener.open(req)
 
         return response
 
@@ -76,9 +75,10 @@ class RaceRecordSender():
 try:
     sr = SerialReader()
     rrs = RaceRecordSender()
-    while 1:
-        print sr.readBytes(1)
-        #rrs.sendLapTime(0)
-        #sr.postRequest
+    #while 1:
+        #print sr.readBytes(1)
+    rrs.sendLapTime("11:08:25")
+    #rrs.postRequest("11:08:25")
+
 except serial.serialutil.SerialException:
     write_err("Blad otwarcia portu\n")

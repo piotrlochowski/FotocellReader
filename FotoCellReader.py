@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import base64
+import json
+import urllib2
 
 import wx
 import serial
@@ -18,9 +21,11 @@ EVT_SERIALRX = wx.PyEventBinder(SERIALRX, 0)
 class SerialRxEvent(wx.PyCommandEvent):
     eventType = SERIALRX
 
-    def __init__(self, windowID, data):
+    def __init__(self, windowID, driver, time):
         wx.PyCommandEvent.__init__(self, self.eventType, windowID)
-        self.data = data
+        self.data = "Kierowca nr %d, uzyskal czas: %s\n" % (driver, time)
+        self.driver = driver
+        self.time = time
 
     def Clone(self):
         self.__class__(self.GetId(), self.data)
@@ -473,9 +478,22 @@ class TerminalFrame(wx.Frame):
     def OnSerialRead(self, event):
         """Handle input from the serial port."""
         text = event.data
-        print
-        "onserialevent", text
         self.text_ctrl_output.WriteText(text)
+        self.sendLapTime(event.time)
+
+
+    def readNumber(self):
+        return self.translate(self.serial.read(1))
+
+    def sendLapTime(self, time):
+        url = "http://localhost:8000/py/api/v1/lap/?format=json"
+        data = {"lap_nr": 1, "penalty": "11:08:26", "penalty_value": "22", "time": time, "trial_result": "/py/api/v1/trial_result/1/"}
+
+        auth = 'Basic %s' % base64.encodestring('%s:%s' % ('piziem', 'pass4pizi'))[:-1]
+
+        req = urllib2.Request(url, json.dumps(data), {'content-type': 'application/json', 'Authorization': auth})
+        response_stream = urllib2.urlopen(req)
+        response = response_stream.read()
 
     def ComPortThread(self):
         """Thread that handles the incomming traffic. Does the basic input
@@ -484,31 +502,10 @@ class TerminalFrame(wx.Frame):
             text = self.translate(self.serial.read(1))          #read one, with timout
             #print "command ",text
             if text == 0:                            #check if not timeout
-                driver = self.translate(self.serial.read(1))
-                time = ""
-                #min
-                time += str(self.translate(self.serial.read(1)))
-                time += ":"
-                #sec
-                time += str(self.translate(self.serial.read(1)))
-                time += "."
-                #ms
-                time += str(self.translate(self.serial.read(1)))
-                #n = self.serial.inWaiting()     #look if there is more to read
-                #if n:
-                #    text = text + self.serial.read(n) #get it
-                #newline transformation
-                #if self.settings.newline == NEWLINE_CR:
-                #    text = text.replace('\r', '\n')
-                #elif self.settings.newline == NEWLINE_LF:
-                #    pass
-                #elif self.settings.newline == NEWLINE_CRLF:
-                #    text = text.replace('\r\n', '\n')
-                #text = self.translate(text)
-                #print "driver", driver
-                event = SerialRxEvent(self.GetId(), str(driver) + ': ' + time + '\n')
+                driver = self.readNumber()
+                time = "%02d:%02d:%02d" % (self.readNumber(), self.readNumber(), self.readNumber())
+                event = SerialRxEvent(self.GetId(), driver, time)
                 self.GetEventHandler().AddPendingEvent(event)
-                #self.OnSerialRead(event)         #output text in window
 
     def onAbout(self, event):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
