@@ -503,7 +503,7 @@ class TerminalFrame(wx.Frame):
             #print "command ",text
             if text == 0:                            #check if not timeout
                 driver = self.readNumber()
-                time = "%02d:%02d:%02d" % (self.readNumber(), self.readNumber(), self.readNumber())
+                time = "%02d:%02d:%02d0" % (self.readNumber(), self.readNumber(), self.readNumber())
                 event = SerialRxEvent(self.GetId(), driver, time)
                 self.GetEventHandler().AddPendingEvent(event)
 
